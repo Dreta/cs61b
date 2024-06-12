@@ -47,8 +47,10 @@ public class JavaExercises {
     }
 
     private static List<Integer> hailstoneHelper(int x, List<Integer> list) {
-        if (x == 1) {
+        if (list.isEmpty()) {
             list.add(x);
+        }
+        if (x == 1) {
             return list;
         }
         if (x % 2 == 0) {
