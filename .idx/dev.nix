@@ -9,7 +9,7 @@
     pkgs.python312
     pkgs.python312Packages.pip
     pkgs.adoptopenjdk-bin
-    neovim
+    pkgs.neovim
     # pkgs.nodejs_20
     # pkgs.nodePackages.nodemon
   ];
