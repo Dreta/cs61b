@@ -20,6 +20,8 @@
     extensions = [
       redhat.java
       oderwat.indent-rainbow
+      vscjava.vscode-java-test
+      vscjava.vscode-java-debug
     ];
     # Enable previews
     previews = {
