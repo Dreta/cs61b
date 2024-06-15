@@ -18,10 +18,10 @@
   idx = {
     # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
     extensions = [
-      redhat.java
-      oderwat.indent-rainbow
-      vscjava.vscode-java-test
-      vscjava.vscode-java-debug
+      "redhat.java"
+      "oderwat.indent-rainbow"
+      "vscjava.vscode-java-test"
+      "vscjava.vscode-java-debug"
     ];
     # Enable previews
     previews = {
