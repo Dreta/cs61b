@@ -10,11 +10,17 @@
 			"version": "none",
 			"installMaven": "true",
 			"installGradle": "true"
-		}
+		},
+		"ghcr.io/devcontainers/features/desktop-lite:1": {}
 	},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+	"forwardPorts": [6080],
+	"portsAttributes": {
+		"6080": {
+		"label": "desktop"
+		}
+	},
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "java -version",
@@ -25,7 +31,8 @@
             "extensions": [
                 "vscjava.vscode-java-pack",
                 "GitHub.copilot",
-                "oderwat.indent-rainbow"
+                "oderwat.indent-rainbow",
+				"shengchen.vscode-checkstyle"
             ],
 			"settings": {
 				"redhat.telemetry.enabled": false
