@@ -62,6 +62,9 @@ public class ArrayDeque61B<T> implements Deque61B<T> {
         T x = array[front];
         front = Math.floorMod(front + 1, array.length);
         size--;
+        if (size < array.length / 2) {
+            resize(array.length / 2);
+        }
         return x;
     }
 
@@ -69,6 +72,9 @@ public class ArrayDeque61B<T> implements Deque61B<T> {
     public T removeLast() {
         T x = array[Math.floorMod(front + size - 1, array.length)];
         size--;
+        if (size < array.length / 2) {
+            resize(array.length / 2);
+        }
         return x;
     }
 
@@ -81,5 +87,4 @@ public class ArrayDeque61B<T> implements Deque61B<T> {
     public T getRecursive(int index) {
         throw new UnsupportedOperationException("Unimplemented method 'getRecursive'");
     }
-
 }

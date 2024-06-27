@@ -11,7 +11,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 public class ArrayDeque61BTest {
     @Test
     @DisplayName("ArrayDeque61B has no fields besides backing array and primitives")
-    void noNonTrivialFields() {
+    public void noNonTrivialFields() {
         List<Field> badFields = Reflection.getFields(ArrayDeque61B.class)
                 .filter(f -> !(f.getType().isPrimitive() || f.getType().equals(Object[].class) || f.isSynthetic()))
                 .toList();
@@ -138,5 +138,11 @@ public class ArrayDeque61BTest {
                 18, 17, 16, 15, 14, 13, 12, 11, 10, 9,
                 8, 7, 6, 5, 4, 3, 2, 1, 0
         ).inOrder();
+
+        for (int i = 0; i < 16; i++) {
+            lld1.removeFirst();
+        }
+        assertThat(lld1.size()).isEqualTo(13);
+        assertThat(lld1.toList()).containsExactly(12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0).inOrder();
     }
 }
