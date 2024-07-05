@@ -78,11 +78,48 @@ public class PercolationTest {
         assertThat(p.percolates()).isTrue();
     }
 
-    // TODO: Using the given tests above as a template,
-    //       write some more tests and delete the fail() line
     @Test
-    public void yourFirstTestHere() {
-        fail("Did you write your own tests?");
+    public void invalidTest() {
+        try {
+            new Percolation(-1);
+            fail("Percolation constructor should throw an IllegalArgumentException if N <= 0");
+        } catch (IllegalArgumentException e) {
+            return;
+        }
+
+        Percolation p = new Percolation(3);
+        try {
+            p.open(3, 0);
+            fail("Percolation open() should throw an IndexOutOfBoundsException if row >= N");
+        } catch (IndexOutOfBoundsException e) {
+            return;
+        }
     }
 
+    @Test
+    public void backwashTest() {
+        int N = 5;
+        Percolation p = new Percolation(N);
+        // open sites at (r, c) = (0, 1), (2, 0), (3, 1), etc. (0, 0) is top-left
+        int[][] openSites = {
+                {0, 1},
+                {1, 1},
+                {2, 1},
+                {3, 1},
+                {4, 1},
+                {4, 4}
+        };
+        Cell[][] expectedState = {
+                {Cell.CLOSED, Cell.FULL, Cell.CLOSED, Cell.CLOSED, Cell.CLOSED},
+                {Cell.CLOSED, Cell.FULL, Cell.CLOSED, Cell.CLOSED, Cell.CLOSED},
+                {Cell.CLOSED, Cell.FULL, Cell.CLOSED, Cell.CLOSED, Cell.CLOSED},
+                {Cell.CLOSED, Cell.FULL, Cell.CLOSED, Cell.CLOSED, Cell.CLOSED},
+                {Cell.CLOSED, Cell.FULL, Cell.CLOSED, Cell.CLOSED, Cell.OPEN}
+        };
+        for (int[] site : openSites) {
+            p.open(site[0], site[1]);
+        }
+        assertThat(getState(N, p)).isEqualTo(expectedState);
+        assertThat(p.percolates()).isTrue();
+    }
 }
