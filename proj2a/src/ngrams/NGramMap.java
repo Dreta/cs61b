@@ -99,7 +99,7 @@ public class NGramMap {
             for (int year = startYear; year <= endYear; year++) {
                 double count = words.get(word).getOrDefault(year, 0.0);
                 double total = counts.getOrDefault(year, 0.0);
-                if (total == 0.0) {
+                if (count == 0.0) {
                     continue;
                 }
                 ts.put(year, count / total);

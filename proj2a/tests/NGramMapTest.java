@@ -15,6 +15,29 @@ import static com.google.common.truth.Truth.assertThat;
  */
 public class NGramMapTest {
     @Test
+    public void testWeightHistory() {
+        NGramMap ngm = new NGramMap(SHORT_WORDS_FILE, TOTAL_COUNTS_FILE);
+        TimeSeries requestWeight = ngm.weightHistory("request");
+        assertThat(requestWeight.get(2005)).isWithin(1E-10).of(646179.0 / 26609986084.0);
+        assertThat(requestWeight.get(2006)).isWithin(1E-10).of(677820.0 / 27695491774.0);
+        assertThat(requestWeight.get(2007)).isWithin(1E-10).of(697645.0 / 28307904288.0);
+        assertThat(requestWeight.get(2008)).isWithin(1E-10).of(795265.0 / 28752030034.0);
+        assertThat(requestWeight.years().size()).isEqualTo(4);
+
+        TimeSeries requestWeight2007to2008 = ngm.weightHistory("request", 2007, 2008);
+        assertThat(requestWeight2007to2008.get(2007)).isWithin(1E-10).of(697645.0 / 28307904288.0);
+        assertThat(requestWeight2007to2008.get(2008)).isWithin(1E-10).of(795265.0 / 28752030034.0);
+        assertThat(requestWeight2007to2008.years().size()).isEqualTo(2);
+
+        TimeSeries summedRequestWeight = ngm.summedWeightHistory(Arrays.asList("request", "airport"), 2006, 2008);
+        assertThat(summedRequestWeight.get(2006)).isWithin(1E-10).of(677820.0 / 27695491774.0);
+        assertThat(summedRequestWeight.get(2007)).isWithin(1E-10).of((697645.0 + 175702.0) / 28307904288.0);
+        assertThat(summedRequestWeight.get(2008)).isWithin(1E-10).of((795265.0 + 173294.0) / 28752030034.0);
+        assertThat(summedRequestWeight.years().size()).isEqualTo(3);
+    }
+
+
+    @Test
     public void testCountHistory() {
         NGramMap ngm = new NGramMap(SHORT_WORDS_FILE, TOTAL_COUNTS_FILE);
         List<Integer> expectedYears = new ArrayList<>
@@ -40,7 +63,15 @@ public class NGramMapTest {
 
         for (int i = 0; i < expectedCounts.size(); i += 1) {
             assertThat(request2006to2007.data().get(i)).isWithin(1E-10).of(expectedCounts.get(i));
-        }
+        }        
+    }
+
+    @Test
+    public void testTotalCountHistory() {
+        NGramMap ngm = new NGramMap(SHORT_WORDS_FILE, TOTAL_COUNTS_FILE);
+        TimeSeries totalCounts = ngm.totalCountHistory();
+        assertThat(totalCounts.get(2015)).isWithin(1E-10).of(26752986914.0);
+        assertThat(totalCounts.years().size()).isEqualTo(529);
     }
 
     @Test
