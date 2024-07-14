@@ -113,5 +113,4 @@ public class TestBSTMap {
         assertThat(b.size()).isEqualTo(5);
         assertThat(b.get("b")).isEqualTo("provolone");
     }
-
 }
