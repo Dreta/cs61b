@@ -9,6 +9,7 @@ public class RedBlackTree<T extends Comparable<T>> {
         boolean isBlack;
         RBTreeNode<T> left;
         RBTreeNode<T> right;
+        RBTreeNode<T> parent;
 
         /**
          * Creates a RBTreeNode with item ITEM and color depending on ISBLACK
@@ -35,6 +36,14 @@ public class RedBlackTree<T extends Comparable<T>> {
             this.left = left;
             this.right = right;
         }
+
+        private boolean isLeftOfParent() {
+            return parent != null && parent.left == this;
+        }
+
+        private boolean isRightOfParent() {
+            return parent != null && parent.right == this;
+        }
     }
 
     /**
@@ -50,7 +59,9 @@ public class RedBlackTree<T extends Comparable<T>> {
      * @param node
      */
     void flipColors(RBTreeNode<T> node) {
-        // TODO: YOUR CODE HERE
+        node.isBlack = !node.isBlack;
+        node.left.isBlack = !node.left.isBlack;
+        node.right.isBlack = !node.right.isBlack;
     }
 
     /**
@@ -61,8 +72,31 @@ public class RedBlackTree<T extends Comparable<T>> {
      * @return
      */
     RBTreeNode<T> rotateRight(RBTreeNode<T> node) {
-        // TODO: YOUR CODE HERE
-        return null;
+        // Assuming color swap is needed, similar to rotateLeft
+        boolean tmp = node.isBlack;
+        node.isBlack = node.left.isBlack;
+        node.left.isBlack = tmp;
+    
+        RBTreeNode<T> originalSub = node.left;
+        node.left = originalSub.right;
+        if (originalSub.right != null) {
+            originalSub.right.parent = node;
+        }
+    
+        originalSub.right = node;
+        originalSub.parent = node.parent;
+    
+        if (node.parent != null) {
+            if (node.isLeftOfParent()) {
+                node.parent.left = originalSub;
+            } else {
+                node.parent.right = originalSub;
+            }
+        }
+    
+        node.parent = originalSub;
+    
+        return originalSub;
     }
 
     /**
@@ -73,8 +107,31 @@ public class RedBlackTree<T extends Comparable<T>> {
      * @return
      */
     RBTreeNode<T> rotateLeft(RBTreeNode<T> node) {
-        // TODO: YOUR CODE HERE
-        return null;
+        // Swap the colors
+        boolean tmp = node.isBlack;
+        node.isBlack = node.right.isBlack;
+        node.right.isBlack = tmp;
+
+        RBTreeNode<T> originalSub = node.right;
+        node.right = originalSub.left;
+        if (originalSub.left != null) {
+            originalSub.left.parent = node;
+        }
+
+        originalSub.left = node;
+        originalSub.parent = node.parent;
+
+        if (node.parent != null) {
+            if (node.isLeftOfParent()) {
+                node.parent.left = originalSub;
+            } else {
+                node.parent.right = originalSub;
+            }
+        }
+
+        node.parent = originalSub;
+
+        return originalSub;
     }
 
     /**
@@ -105,17 +162,60 @@ public class RedBlackTree<T extends Comparable<T>> {
      * @return
      */
     private RBTreeNode<T> insert(RBTreeNode<T> node, T item) {
-        // TODO: Insert (return) new red leaf node.
+        RBTreeNode<T> newNode = new RBTreeNode<>(false, item);
+        if (node == null) {
+            return newNode;
+        }
 
-        // TODO: Handle normal binary search tree insertion.
+        RBTreeNode<T> currentlyAt = node;
+        while (true) {
+            if (item.compareTo(currentlyAt.item) < 0) {
+                if (currentlyAt.left == null) {
+                    newNode.parent = currentlyAt;
+                    currentlyAt.left = newNode;
+                    break;
+                }
+                currentlyAt = currentlyAt.left;
+            } else if (item.compareTo(currentlyAt.item) > 0) {
+                if (currentlyAt.right == null) {
+                    newNode.parent = currentlyAt;
+                    currentlyAt.right = newNode;
+                    break;
+                }
+                currentlyAt = currentlyAt.right;
+            }
+        }
 
-        // TODO: Rotate left operation
+        // Go upward the tree to fix any violations
+        currentlyAt = newNode;
+        RBTreeNode<T> parent = null;
+        RBTreeNode<T> grandparent = null;
+        while (currentlyAt != null && currentlyAt.parent != null) {
+            parent = currentlyAt.parent;
+            grandparent = currentlyAt.parent.parent;
 
-        // TODO: Rotate right operation
+            if (isRed(parent.left) && isRed(parent.right)) {
+                flipColors(parent);
+            }
 
-        // TODO: Color flip
+            if ((parent.left == null || parent.left.isBlack) && isRed(parent.right)) {
+                currentlyAt = parent;
+                parent = rotateLeft(parent);
+                grandparent = parent.parent;
+            }
 
-        return null; //fix this return statement
+            if (grandparent != null && isRed(grandparent.left) && isRed(grandparent.left.left)) {
+                parent = rotateRight(grandparent);
+                flipColors(parent);
+                grandparent = parent.parent;
+            }
+            currentlyAt = currentlyAt.parent;
+        }
+
+        RBTreeNode<T> newRoot = newNode;
+        while (newRoot.parent != null) {
+            newRoot = newRoot.parent;
+        }
+        return newRoot;
     }
-
 }
