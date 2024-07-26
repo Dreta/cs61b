@@ -1,0 +1,19 @@
+Inserting 10,000 length 2 random strings:
+* ULLMap: 0.03s
+* MyHashMap: 0.01s
+* java.util.HashMap: 0.00s
+
+Inserting 10,000 ordered strings:
+* ULLMap: 0.36s
+* MyHashMap: 0.03s
+* java.util.HashMap: 0.01s
+
+Although java.util.HashMap and MyHashMap are implemented with similar ideas in mind, java.util.HashMap is consistently faster.
+There must have been special optimizations in java.util.HashMap.
+
+Inserting 10,000 strings with different buckets:
+* ArrayList: 0.02s
+* LinkedList: 0.01s
+* HashSet: 0.02s
+* Stack: 0.02s
+* ArrayDeque: 0.01s

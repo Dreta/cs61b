@@ -1,12 +1,16 @@
 package hashmap;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Set;
 
 /**
  *  A hash table-backed Map implementation.
  *
  *  Assumes null keys will never be inserted, and does not resize down upon remove().
- *  @author YOUR NAME HERE
+ *  @author Lin
  */
 public class MyHashMap<K, V> implements Map61B<K, V> {
 
@@ -26,12 +30,18 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     /* Instance Variables */
     private Collection<Node>[] buckets;
-    // You should probably define some more!
+    private int initialCapacity;
+    private double loadFactor;
+    private int size = 0;
 
     /** Constructors */
-    public MyHashMap() { }
+    public MyHashMap() { 
+        this(16, 0.75);
+    }
 
-    public MyHashMap(int initialCapacity) { }
+    public MyHashMap(int initialCapacity) {
+        this(initialCapacity, 0.75);
+    }
 
     /**
      * MyHashMap constructor that creates a backing array of initialCapacity.
@@ -40,7 +50,11 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      * @param initialCapacity initial size of backing array
      * @param loadFactor maximum load factor
      */
-    public MyHashMap(int initialCapacity, double loadFactor) { }
+    public MyHashMap(int initialCapacity, double loadFactor) { 
+        buckets = (Collection<Node>[]) new Collection[initialCapacity];
+        this.initialCapacity = initialCapacity;
+        this.loadFactor = loadFactor;
+    }
 
     /**
      * Returns a data structure to be a hash table bucket
@@ -63,11 +77,116 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      * OWN BUCKET DATA STRUCTURES WITH THE NEW OPERATOR!
      */
     protected Collection<Node> createBucket() {
-        // TODO: Fill in this method.
+        return new LinkedList<>();
+    }
+
+    @Override
+    public Iterator<K> iterator() {
+        return keySet().iterator();
+    }
+
+    @Override
+    public void put(K key, V value) {
+        int bucket = Math.floorMod(key.hashCode(), buckets.length);
+        if (buckets[bucket] == null) {
+            buckets[bucket] = createBucket();
+        }
+
+        for (Node node : buckets[bucket]) {
+            if (node.key.equals(key)) {
+                node.value = value;
+                return;
+            }
+        }
+        size++;
+        buckets[bucket].add(new Node(key, value));
+
+        if (((double) size / (double) buckets.length) > loadFactor) {
+            resize(buckets.length * 2);
+        }
+    }
+
+    private void resize(int newSize) {
+        Collection<Node>[] originalBuckets = buckets;
+        buckets = (Collection<Node>[]) new Collection[newSize];
+        for (Collection<Node> bucket : originalBuckets) {
+            if (bucket != null) {
+                for (Node node : bucket) {
+                    int newBucket = Math.floorMod(node.key.hashCode(), newSize);
+                    if (buckets[newBucket] == null) {
+                        buckets[newBucket] = createBucket();
+                    }
+                    buckets[newBucket].add(node);
+                }
+            }
+        }
+    }
+
+    @Override
+    public V get(K key) {
+        int bucket = Math.floorMod(key.hashCode(), buckets.length);
+        if (buckets[bucket] == null) {
+            return null;
+        }
+        for (Node node : buckets[bucket]) {
+            if (node.key.equals(key)) {
+                return node.value;
+            }
+        }
         return null;
     }
 
-    // TODO: Implement the methods of the Map61B Interface below
-    // Your code won't compile until you do so!
+    @Override
+    public boolean containsKey(K key) {
+        int bucket = Math.floorMod(key.hashCode(), buckets.length);
+        if (buckets[bucket] == null) {
+            return false;
+        }
+        for (Node node : buckets[bucket]) {
+            if (node.key.equals(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
+    @Override
+    public int size() {
+        return size;
+    }
+
+    @Override
+    public void clear() {
+        size = 0;
+        buckets = (Collection<Node>[]) new Collection[initialCapacity];
+    }
+
+    @Override
+    public Set<K> keySet() {
+        Set<K> keySet = new HashSet<>();
+        for (Collection<Node> bucket : buckets) {
+            if (bucket != null) {
+                for (Node node : bucket) {
+                    keySet.add(node.key);
+                }
+            }
+        }
+        return keySet;
+    }
+
+    @Override
+    public V remove(K key) {
+        int bucket = Math.floorMod(key.hashCode(), buckets.length);
+        if (buckets[bucket] == null) {
+            return null;
+        }
+        for (Node node : buckets[bucket]) {
+            if (node.key.equals(key)) {
+                buckets[bucket].remove(node);
+                size--;
+                return node.value;
+            }
+        }
+        return null;
+    }
 }
