@@ -14,7 +14,7 @@ $(function() {
 
     console.log(host);*/
 
-    host = 'http://localhost:4567';
+    host = '';
     const history_server = host + '/history';
     const historytext_server = host + '/historytext';
     const hyponyms_server = host + '/hyponyms';
