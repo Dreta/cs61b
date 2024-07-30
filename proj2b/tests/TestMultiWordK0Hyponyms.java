@@ -39,7 +39,4 @@ public class TestMultiWordK0Hyponyms {
         String expected = "[alteration, change, increase, jump, leap, modification, saltation, transition]";
         assertThat(actual).isEqualTo(expected);
     }
-
-    // TODO: Add more unit tests (including edge case tests) here.
-
 }
