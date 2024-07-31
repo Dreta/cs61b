@@ -22,6 +22,35 @@ public class DirectedGraph {
         adj[from].add(to);
     }
 
+    @Override
+    public DirectedGraph clone() {
+        DirectedGraph clone = new DirectedGraph(vertices);
+        for (int i = 0; i < vertices; i++) {
+            if (adj[i] != null) {
+                for (int j : adj[i]) {
+                    clone.addEdge(i, j);
+                }
+            }
+        }
+        return clone;
+    }
+
+    public DirectedGraph reverse() {
+        List<Integer>[] reversed = new List[vertices];
+        for (int i = 0; i < vertices; i++) {
+            if (adj[i] != null) {
+                for (int j : adj[i]) {
+                    if (reversed[j] == null) {
+                        reversed[j] = new ArrayList<>();
+                    }
+                    reversed[j].add(i);
+                }
+            }
+        }
+        adj = reversed;
+        return this;
+    }
+
     public Collection<Integer> adjacent(int v) {
         return adj[v] == null ? Collections.emptyList() : adj[v];
     }

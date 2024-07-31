@@ -25,9 +25,28 @@ public class HyponymsHandler extends NgordnetQueryHandler {
 
     @Override
     public String handle(NgordnetQuery q) {
-        if (q.ngordnetQueryType() != NgordnetQueryType.HYPONYMS) {
-            throw new IllegalArgumentException("Invalid query type");
+        if (q.ngordnetQueryType() == NgordnetQueryType.HYPONYMS) {
+            return hyponyms(q);
         }
+        return commonAncestors(q);
+    }
+
+    private String commonAncestors(NgordnetQuery q) {
+        Set<String> result = new TreeSet<>();
+        List<Collection<String>> results = new ArrayList<>();
+        for (String word : q.words()) {
+            Collection<String> thisResult = wordNet.ancestors(word);
+            result.addAll(thisResult);
+            results.add(thisResult);
+        }
+        for (Collection<String> thisResult : results) {
+            result.retainAll(thisResult);
+        }
+
+        return kFilter(q, result);
+    }
+
+    private String hyponyms(NgordnetQuery q) {
         Set<String> result = new TreeSet<>();
         List<Collection<String>> results = new ArrayList<>();
         for (String word : q.words()) {
@@ -39,6 +58,10 @@ public class HyponymsHandler extends NgordnetQueryHandler {
             result.retainAll(thisResult);
         }
 
+        return kFilter(q, result);
+    }
+
+    private String kFilter(NgordnetQuery q, Set<String> result) {
         if (q.k() == 0) {
             return result.toString();
         }

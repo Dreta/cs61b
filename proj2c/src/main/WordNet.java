@@ -40,6 +40,19 @@ public class WordNet {
         hyponymsIn.close();
     }
 
+    public Collection<String> ancestors(String word) {
+        Set<String> result = new TreeSet<>();
+        for (int wordID : synsetsMapReverse.get(word)) {
+            DepthFirstTraversal dfs = new DepthFirstTraversal(graph.clone().reverse(), wordID);
+            for (int marked : dfs.marked()) {
+                for (String s : synsetsMap.get(marked)) {
+                    result.add(s);
+                }
+            }
+        }
+        return result;
+    }
+
     public Collection<String> hyponyms(String word) {
         Set<String> result = new TreeSet<>();
         for (int wordID : synsetsMapReverse.get(word)) {
