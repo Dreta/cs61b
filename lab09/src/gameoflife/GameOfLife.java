@@ -237,15 +237,46 @@ public class GameOfLife {
         // The board is filled with Tileset.NOTHING
         fillWithNothing(nextGen);
 
-        // TODO: Implement this method so that the described transitions occur.
-        // TODO: The current state is represented by TETiles[][] tiles and the next
-        // TODO: state/evolution should be returned in TETile[][] nextGen.
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                TETile[] neighbors = getNeighbors(tiles, x, y);
+                int liveNeighbors = 0;
+                for (TETile neighbor : neighbors) {
+                    if (neighbor == null) {
+                        continue;
+                    }
+                    if (neighbor == Tileset.CELL) {
+                        liveNeighbors++;
+                    }
+                }
 
+                if (tiles[x][y] == Tileset.CELL) {
+                    if (liveNeighbors < 2) {
+                        nextGen[x][y] = Tileset.NOTHING;
+                    } else if (liveNeighbors == 2 || liveNeighbors == 3) {
+                        nextGen[x][y] = Tileset.CELL;
+                    } else {
+                        nextGen[x][y] = Tileset.NOTHING;
+                    }
+                } else if (liveNeighbors == 3) {
+                    nextGen[x][y] = Tileset.CELL;
+                }
+            }
+        }
+        return nextGen;
+    }
 
-
-
-        // TODO: Returns the next evolution in TETile[][] nextGen.
-        return null;
+    private TETile[] getNeighbors(TETile[][] tiles, int x, int y) {
+        TETile[] neighbors = new TETile[8];
+        neighbors[0] = x - 1 >= 0 && y - 1 >= 0 ? tiles[x - 1][y - 1] : null;
+        neighbors[1] = y - 1 >= 0 ? tiles[x][y - 1] : null;
+        neighbors[2] = x + 1 < width && y - 1 >= 0 ? tiles[x + 1][y - 1] : null;
+        neighbors[3] = x - 1 >= 0 ? tiles[x - 1][y] : null;
+        neighbors[4] = x + 1 < width ? tiles[x + 1][y] : null;
+        neighbors[5] = x - 1 >= 0 && y + 1 < height ? tiles[x - 1][y + 1] : null;
+        neighbors[6] = y + 1 < height ? tiles[x][y + 1] : null;
+        neighbors[7] = x + 1 < width && y + 1 < height ? tiles[x + 1][y + 1] : null;
+        return neighbors;
     }
 
     /**
@@ -266,20 +297,16 @@ public class GameOfLife {
      * 0 represents NOTHING, 1 represents a CELL.
      */
     public void saveBoard() {
-        // TODO: Save the dimensions of the board into the first line of the file.
-        // TODO: The width and height should be separated by a space, and end with "\n".
+        StringBuilder sb = new StringBuilder();
+        sb.append(width).append(" ").append(height).append("\n");
 
-
-
-        // TODO: Save the current state of the board into save.txt. You should
-        // TODO: use the provided FileUtils functions to help you. Make sure
-        // TODO: the orientation is correct! Each line in the board should
-        // TODO: end with a new line character.
-
-
-
-
-
+        for (int y = height - 1; y >= 0; y--) {
+            for (int x = 0; x < width; x++) {
+                sb.append(currentState[x][y] == Tileset.CELL ? 1 : 0);
+            }
+            sb.append("\n");
+        }
+        FileUtils.writeFile(SAVE_FILE, sb.toString());
     }
 
     /**
@@ -287,25 +314,20 @@ public class GameOfLife {
      * 0 represents NOTHING, 1 represents a CELL.
      */
     public TETile[][] loadBoard(String filename) {
-        // TODO: Read in the file.
+        String s = FileUtils.readFile(filename);
+        String[] lines = s.split("\n");
+        String[] dim = lines[0].split(" ");
+        width = Integer.parseInt(dim[0]);
+        height = Integer.parseInt(dim[1]);
 
-        // TODO: Split the file based on the new line character.
-
-        // TODO: Grab and set the dimensions from the first line.
-
-        // TODO: Create a TETile[][] to load the board from the file into
-        // TODO: and any additional variables that you think might help.
-
-
-        // TODO: Load the state of the board from the given filename. You can
-        // TODO: use the provided builder variable to help you and FileUtils
-        // TODO: functions. Make sure the orientation is correct!
-
-
-
-
-        // TODO: Return the board you loaded. Replace/delete this line.
-        return null;
+        TETile[][] tiles = new TETile[width][height];
+        for (int y = height - 1; y >= 0; y--) {
+            String line = lines[height - y];
+            for (int x = 0; x < width; x++) {
+                tiles[x][y] = line.charAt(x) == '1' ? Tileset.CELL : Tileset.NOTHING;
+            }
+        }
+        return tiles;
     }
 
     /**
