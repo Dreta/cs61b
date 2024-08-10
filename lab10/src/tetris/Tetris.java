@@ -5,6 +5,7 @@ import tileengine.TETile;
 import tileengine.TERenderer;
 import tileengine.Tileset;
 
+import java.awt.event.KeyEvent;
 import java.util.*;
 
 /**
@@ -90,9 +91,20 @@ public class Tetris {
             return;
         }
 
-        // TODO: Implement interactivity, so the user is able to input the keystrokes to move
-        //  the tile and rotate the tile. You'll want to use some provided helper methods here.
-
+        if (keyDeltaTime() > 100) {
+            if (StdDraw.isKeyPressed(KeyEvent.VK_W)) {
+                movement.rotateLeft();
+            } else if (StdDraw.isKeyPressed(KeyEvent.VK_Q)) {
+                movement.rotateRight();
+            } else if (StdDraw.isKeyPressed(KeyEvent.VK_A)) {
+                movement.tryMove(-1, 0);
+            } else if (StdDraw.isKeyPressed(KeyEvent.VK_S)) {
+                movement.dropDown();
+            } else if (StdDraw.isKeyPressed(KeyEvent.VK_D)) {
+                movement.tryMove(1, 0);
+            }
+            resetKeyTimer();
+        }
 
         Tetromino.draw(t, board, t.pos.x, t.pos.y);
     }
@@ -103,8 +115,15 @@ public class Tetris {
      * @param linesCleared
      */
     private void incrementScore(int linesCleared) {
-        // TODO: Increment the score based on the number of lines cleared.
-
+        if (linesCleared == 1) {
+            score += 100;
+        } else if (linesCleared == 2) {
+            score += 300;
+        } else if (linesCleared == 3) {
+            score += 500;
+        } else if (linesCleared == 4) {
+            score += 800;
+        }
     }
 
     /**
@@ -115,10 +134,31 @@ public class Tetris {
     public void clearLines(TETile[][] tiles) {
         // Keeps track of the current number lines cleared
         int linesCleared = 0;
-
-        // TODO: Check how many lines have been completed and clear it the rows if completed.
-
-        // TODO: Increment the score based on the number of lines cleared.
+        
+        // Iterates through the board to check for filled lines
+        for (int y = 0; y < GAME_HEIGHT; y++) {
+            boolean filled = true;
+            for (int x = 0; x < WIDTH; x++) {
+                if (tiles[x][y] == Tileset.NOTHING) {
+                    filled = false;
+                    break;
+                }
+            }
+            // If a line is filled, clear it and increment the number of lines cleared
+            if (filled) {
+                for (int x = 0; x < WIDTH; x++) {
+                    tiles[x][y] = Tileset.NOTHING;
+                }
+                // Shift all tiles above the cleared line down by one
+                for (int y2 = y; y2 < GAME_HEIGHT - 1; y2++) {
+                    for (int x = 0; x < WIDTH; x++) {
+                        tiles[x][y2] = tiles[x][y2 + 1];
+                    }
+                }
+                linesCleared++;
+            }
+        }
+        incrementScore(linesCleared);
 
         fillAux();
     }
@@ -129,19 +169,25 @@ public class Tetris {
      */
     public void runGame() {
         resetActionTimer();
-
-        // TODO: Set up your game loop. The game should keep running until the game is over.
-        // Use helper methods inside your game loop, according to the spec description.
-
-
+        resetKeyTimer();
+        spawnPiece();
+        while (!isGameOver()) {
+            updateBoard();
+            if (currentTetromino == null) {
+                clearLines(board);
+                spawnPiece();
+            }
+            renderBoard();
+        }
     }
 
     /**
      * Renders the score using the StdDraw library.
      */
     private void renderScore() {
-        // TODO: Use the StdDraw library to draw out the score.
-
+        StdDraw.setFont();
+        StdDraw.setPenColor(StdDraw.WHITE);
+        StdDraw.text(7, 19, "Score: " + score);
     }
 
     /**
@@ -167,6 +213,7 @@ public class Tetris {
 
     private long prevActionTimestamp;
     private long prevFrameTimestamp;
+    private long prevKeyTimestamp;
 
     // The auxiliary board. At each time step, as the piece moves down, the board
     // is cleared and redrawn, so we keep an auxiliary board to track what has been
@@ -300,4 +347,17 @@ public class Tetris {
         prevActionTimestamp = System.currentTimeMillis();
     }
 
+    /**
+     * Calculates the delta time with the previous frame.
+     */
+    private long keyDeltaTime() {
+        return System.currentTimeMillis() - prevKeyTimestamp;
+    }
+
+    /**
+     * Resets the key timestamp to the current time in milliseconds.
+     */
+    private void resetKeyTimer() {
+        prevKeyTimestamp = System.currentTimeMillis();
+    }
 }
